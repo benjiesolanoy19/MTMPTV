@@ -1,0 +1,6 @@
+@extends('layouts.app')
+@section('content')
+<div class="page-head"><div><div class="eyebrow">ADMINISTRATION</div><h1>Permissions</h1><p class="muted">Control which modules each non-administrator role can access.</p></div></div>
+<div class="panel"><div class="alert alert-info small"><i class="bi bi-info-circle me-2"></i>Administrators always retain full access. Changes apply on the next request and immediately affect the sidebar and protected routes.</div>
+@foreach($roles as $role)<form method="POST" action="{{ route('permissions.update', $role) }}" class="permission-role">@csrf @method('PUT')<div class="panel-head"><div><h3>{{ ucwords(str_replace('_', ' ', $role)) }}</h3><p class="muted">Select the permissions granted to this role.</p></div><button class="btn btn-primary btn-sm">Save permissions</button></div><div class="row g-2">@foreach($permissions as $permission)<div class="col-md-4"><label class="permission-check"><input type="checkbox" name="permissions[]" value="{{ $permission }}" @checked(in_array($permission, $assigned[$role] ?? [], true))><span>{{ ucfirst($permission) }}</span></label></div>@endforeach</div></form>@endforeach</div>
+@endsection
