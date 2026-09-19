@@ -31,6 +31,7 @@ class AppServiceProvider extends ServiceProvider
             'view permits', 'manage permits', 'view renewals', 'manage renewals', 'view violations', 'manage violations',
             'view reports', 'view my reports', 'view notifications', 'manage users',
             'operator portal', 'operator applications', 'operator permits', 'operator franchises', 'operator renewals', 'operator violations', 'operator notifications',
+            'vehicle owner portal', 'vehicle owner vehicles', 'vehicle owner applications', 'vehicle owner permits', 'vehicle owner franchises', 'vehicle owner renewals', 'vehicle owner violations', 'vehicle owner notifications',
         ] as $permission) {
             Gate::define($permission, fn (User $user) => $user->hasPermission($permission));
         }

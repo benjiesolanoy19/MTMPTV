@@ -15,4 +15,6 @@ class Vehicle extends Model
     public function franchises() { return $this->hasMany(Franchise::class); }
     public function permits() { return $this->hasMany(Permit::class); }
     public function violations() { return $this->hasMany(Violation::class); }
+    public function locations() { return $this->hasMany(VehicleLocation::class); }
+    public function latestLocation() { return $this->hasOne(VehicleLocation::class)->latestOfMany('recorded_at'); }
 }

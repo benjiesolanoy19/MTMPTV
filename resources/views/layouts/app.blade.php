@@ -23,6 +23,8 @@
                     <a class="nav-link {{ request()->routeIs('operator.profile') ? 'active' : '' }}" href="{{ route('operator.profile') }}"><i class="bi bi-person-vcard"></i> My operator profile</a>
                     <a class="nav-link {{ request()->routeIs('operator.vehicle') ? 'active' : '' }}" href="{{ route('operator.vehicle') }}"><i class="bi bi-truck"></i> My vehicle</a>
                 @endcan
+                <div class="nav-label">LOCATION</div>
+                <a class="nav-link {{ request()->routeIs('operator.live-location') ? 'active' : '' }}" href="{{ route('operator.live-location') }}"><i class="bi bi-geo-alt"></i> Live Location</a>
                 @can('operator applications')
                     <a class="nav-link {{ request()->routeIs('operator.applications.*') ? 'active' : '' }}" href="{{ route('operator.applications.index') }}"><i class="bi bi-file-earmark-text"></i> Applications</a>
                 @endcan
@@ -43,6 +45,40 @@
                     <a class="nav-link {{ request()->routeIs('operator.notifications.index') ? 'active' : '' }}" href="{{ route('operator.notifications.index') }}"><i class="bi bi-bell"></i> Notifications</a>
                 @endcan
                 <a class="nav-link {{ request()->routeIs('profile.*', 'operator.profile') ? 'active' : '' }}" href="{{ route('profile.show') }}"><i class="bi bi-person-circle"></i> My profile</a>
+            @elseif (auth()->user()->role === 'vehicle_owner')
+                <div class="nav-label">WORKSPACE</div>
+                @canany(['vehicle owner portal', 'view dashboard'])
+                    <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}"><i class="bi bi-grid-1x2"></i> Dashboard</a>
+                    <a class="nav-link {{ request()->routeIs('vehicle-owner.profile') ? 'active' : '' }}" href="{{ route('vehicle-owner.profile') }}"><i class="bi bi-person-vcard"></i> My profile</a>
+                @endcanany
+                @canany(['vehicle owner vehicles', 'view vehicles'])
+                    <div class="nav-label">VEHICLES</div>
+                    <a class="nav-link {{ request()->routeIs('vehicle-owner.vehicles.index', 'vehicle-owner.vehicles.show') ? 'active' : '' }}" href="{{ route('vehicle-owner.vehicles.index') }}"><i class="bi bi-truck"></i> My Vehicles</a>
+                    <a class="nav-link {{ request()->routeIs('vehicle-owner.vehicles.location') ? 'active' : '' }}" href="{{ route('vehicle-owner.vehicles.index') }}"><i class="bi bi-geo-alt"></i> My Vehicle Location</a>
+                    <a class="nav-link {{ request()->routeIs('vehicle-owner.vehicles.create') ? 'active' : '' }}" href="{{ route('vehicle-owner.vehicles.create') }}"><i class="bi bi-plus-circle"></i> Register Vehicle</a>
+                @endcanany
+                @canany(['vehicle owner applications', 'view applications'])
+                    <div class="nav-label">APPLICATIONS</div>
+                    <a class="nav-link {{ request()->routeIs('vehicle-owner.applications.index', 'vehicle-owner.applications.show') ? 'active' : '' }}" href="{{ route('vehicle-owner.applications.index') }}"><i class="bi bi-file-earmark-text"></i> My Applications</a>
+                    <a class="nav-link {{ request()->routeIs('vehicle-owner.applications.create') ? 'active' : '' }}" href="{{ route('vehicle-owner.applications.create') }}"><i class="bi bi-file-earmark-plus"></i> New Application</a>
+                @endcanany
+                @canany(['vehicle owner permits', 'view permits'])
+                    <div class="nav-label">PERMITS & FRANCHISE</div>
+                    <a class="nav-link {{ request()->routeIs('vehicle-owner.permits.*') ? 'active' : '' }}" href="{{ route('vehicle-owner.permits.index') }}"><i class="bi bi-card-checklist"></i> My Permits</a>
+                @endcanany
+                @canany(['vehicle owner franchises', 'view franchises'])
+                    <a class="nav-link {{ request()->routeIs('vehicle-owner.franchises.*') ? 'active' : '' }}" href="{{ route('vehicle-owner.franchises.index') }}"><i class="bi bi-award"></i> My Franchise</a>
+                @endcanany
+                @canany(['vehicle owner renewals', 'view renewals'])
+                    <div class="nav-label">COMPLIANCE</div>
+                    <a class="nav-link {{ request()->routeIs('vehicle-owner.renewals.*') ? 'active' : '' }}" href="{{ route('vehicle-owner.renewals.index') }}"><i class="bi bi-arrow-repeat"></i> Renewals</a>
+                    <a class="nav-link {{ request()->routeIs('vehicle-owner.violations.*') ? 'active' : '' }}" href="{{ route('vehicle-owner.violations.index') }}"><i class="bi bi-exclamation-triangle"></i> Violations</a>
+                @endcanany
+                @canany(['vehicle owner notifications', 'view notifications'])
+                    <div class="nav-label">ACCOUNT</div>
+                    <a class="nav-link {{ request()->routeIs('vehicle-owner.notifications.index') ? 'active' : '' }}" href="{{ route('vehicle-owner.notifications.index') }}"><i class="bi bi-bell"></i> Notifications</a>
+                @endcanany
+                <a class="nav-link {{ request()->routeIs('profile.*') ? 'active' : '' }}" href="{{ route('profile.show') }}"><i class="bi bi-person-circle"></i> My profile</a>
             @else
             <div class="nav-label">WORKSPACE</div>
             @can('view dashboard')
@@ -51,12 +87,16 @@
             @can('view applications')
                 <a class="nav-link {{ request()->routeIs('applications.*') ? 'active' : '' }}" href="{{ route('applications.index') }}"><i class="bi bi-file-earmark-text"></i> Applications</a>
             @endcan
+            @if (in_array(auth()->user()->role, ['admin', 'staff'], true) && auth()->user()->can('view vehicles'))
+                <a class="nav-link {{ request()->routeIs('live-map.index') ? 'active' : '' }}" href="{{ route('live-map.index') }}"><i class="bi bi-geo-alt"></i> Live Transport Map</a>
+            @endif
 
             @can('view reports')
                 <div class="nav-label">REPORTING</div>
                 <a class="nav-link {{ request()->routeIs('reports.index', 'reports.show') ? 'active' : '' }}" href="{{ route('reports.index') }}"><i class="bi bi-file-earmark-bar-graph"></i> Reports</a>
             @endcan
             @can('view my reports')
+                <a class="nav-link {{ request()->routeIs('reports.create') ? 'active' : '' }}" href="{{ route('reports.create') }}"><i class="bi bi-geo-alt"></i> Create report</a>
                 <a class="nav-link {{ request()->routeIs('reports.mine') ? 'active' : '' }}" href="{{ route('reports.mine') }}"><i class="bi bi-person-lines-fill"></i> My reports</a>
             @endcan
 

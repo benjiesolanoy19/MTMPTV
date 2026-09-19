@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
             'staff' => ['view dashboard', 'view operators', 'manage operators', 'view vehicles', 'manage vehicles', 'view applications', 'create applications', 'manage applications', 'view franchises', 'manage franchises', 'view permits', 'manage permits', 'view renewals', 'manage renewals', 'view violations', 'manage violations', 'view reports', 'view my reports', 'view notifications'],
             'viewer' => ['view dashboard', 'view operators', 'view vehicles', 'view franchises', 'view permits', 'view renewals', 'view violations', 'view reports', 'view my reports', 'view notifications'],
             'operator' => ['view dashboard', 'operator portal', 'operator applications', 'operator permits', 'operator franchises', 'operator renewals', 'operator violations', 'operator notifications'],
-            'vehicle_owner' => ['view dashboard', 'view vehicles', 'view applications', 'create applications', 'view permits', 'view renewals'],
+            'vehicle_owner' => ['view dashboard', 'vehicle owner portal', 'vehicle owner vehicles', 'vehicle owner applications', 'vehicle owner permits', 'vehicle owner franchises', 'vehicle owner renewals', 'vehicle owner violations', 'vehicle owner notifications'],
         ];
         foreach ($permissions as $role => $rolePermissions) {
             foreach ($rolePermissions as $permission) RolePermission::create(['role' => $role, 'permission' => $permission]);

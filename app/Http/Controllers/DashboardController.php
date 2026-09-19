@@ -11,6 +11,7 @@ class DashboardController extends Controller
     {
         if (auth()->user()->role === 'viewer') return app(ReportUserDashboardController::class)->index();
         if (auth()->user()->role === 'operator') return app(OperatorPortalController::class)->dashboard();
+        if (auth()->user()->role === 'vehicle_owner') return app(VehicleOwnerPortalController::class)->dashboard();
         $today = Carbon::today(); $soon = $today->copy()->addDays(30);
         $stats = [
             'operators' => Operator::count(), 'vehicles' => Vehicle::count(),

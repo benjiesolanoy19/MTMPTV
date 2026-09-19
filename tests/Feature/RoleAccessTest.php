@@ -43,6 +43,16 @@ class RoleAccessTest extends TestCase
         $this->actingAs($user)->get(route('operators.index'))->assertForbidden();
     }
 
+    public function test_vehicle_owner_legacy_permissions_still_allow_owner_portal_routes(): void
+    {
+        $this->grant('vehicle_owner', ['view dashboard', 'view vehicles', 'view applications', 'create applications', 'view permits', 'view renewals', 'view violations', 'view notifications']);
+        $user = User::factory()->create(['role' => 'vehicle_owner']);
+
+        $this->actingAs($user)->get(route('dashboard'))->assertOk();
+        $this->actingAs($user)->get(route('vehicle-owner.vehicles.index'))->assertOk();
+        $this->actingAs($user)->get(route('vehicle-owner.applications.index'))->assertOk();
+    }
+
     public function test_staff_can_manage_operations_but_cannot_manage_users(): void
     {
         $this->grant('staff', ['view dashboard', 'view operators', 'manage operators', 'view vehicles', 'manage vehicles', 'view applications', 'create applications', 'manage applications']);

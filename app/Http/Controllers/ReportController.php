@@ -7,6 +7,31 @@ use Illuminate\Http\Request;
 
 class ReportController extends Controller
 {
+    public function create()
+    {
+        return view('report-user.reports.create', ['apiKey' => config('services.google_maps.api_key')]);
+    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'report_type' => ['required', 'string', 'max:80'],
+            'date_submitted' => ['required', 'date'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'latitude' => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
+            'description' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $data['submitted_by'] = auth()->id();
+        $data['report_number'] = 'RPT-'.now()->format('YmdHis').'-'.auth()->id();
+        $data['status'] = 'Submitted';
+
+        $report = Report::create($data);
+
+        return redirect()->route('reports.show', $report)->with('success', 'Report submitted successfully.');
+    }
+
     public function index(Request $request)
     {
         $reports = $this->filtered($request)->latest('date_submitted')->paginate(12)->withQueryString();
