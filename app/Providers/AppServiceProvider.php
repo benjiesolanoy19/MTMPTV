@@ -3,7 +3,10 @@
 namespace App\Providers;
 
 use App\Models\User;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->configureRateLimiting();
+
         Gate::before(function (User $user, string $ability) {
             return $user->isAdmin() ? true : null;
         });
@@ -35,5 +40,29 @@ class AppServiceProvider extends ServiceProvider
         ] as $permission) {
             Gate::define($permission, fn (User $user) => $user->hasPermission($permission));
         }
+    }
+
+    /**
+     * Register the named rate limiters used by the guest auth routes.
+     *
+     * Both limiters are keyed by IP address so a locked-out client cannot be
+     * triggered by another user sharing a connection. Limits come from
+     * config('services.throttle') so they can be tuned per environment.
+     */
+    private function configureRateLimiting(): void
+    {
+        RateLimiter::for('login', function (Request $request) {
+            return Limit::perMinutes(
+                config('services.throttle.login_decay_minutes'),
+                config('services.throttle.login_max_attempts')
+            )->by($request->ip());
+        });
+
+        RateLimiter::for('register', function (Request $request) {
+            return Limit::perMinutes(
+                config('services.throttle.register_decay_minutes'),
+                config('services.throttle.register_max_attempts')
+            )->by($request->ip());
+        });
     }
 }

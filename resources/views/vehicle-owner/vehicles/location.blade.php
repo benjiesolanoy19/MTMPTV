@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+@include('partials.leaflet')
 <div class="page-head">
     <div>
         <a href="{{ route('vehicle-owner.vehicles.show', $vehicle) }}" class="text-link"><i class="bi bi-arrow-left"></i> Vehicle details</a>
@@ -43,8 +43,9 @@
     <div class="col-lg-8">
         <div class="panel">
             <h3 class="mb-3">Map</h3>
-            <div id="ownerMapMessage" class="alert alert-info">Loading OpenStreetMap...</div>
-            <div id="ownerVehicleMap" style="height: 500px; width: 100%; border-radius: 14px; overflow: hidden; background: #e9ecef;"></div>
+            <div id="ownerMapMessage" class="alert alert-secondary d-none"></div>
+            <div class="alert alert-warning d-none leaflet-load-error mb-3">Map library could not be loaded. Check your internet connection and reload the page.</div>
+            <div id="ownerVehicleMap" class="leaflet-map" style="min-height: 430px; height: 500px;"></div>
         </div>
     </div>
 </div>
@@ -61,6 +62,7 @@
     let lastSentAt = 0;
     let lastSentPoint = null;
     const gpsOptions = { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 };
+    const mapSettings = window.mapDefaults;
 
     function showMapMessage(type, text) {
         const message = document.getElementById('ownerMapMessage');
@@ -92,10 +94,18 @@
     }
 
     function initOwnerMap() {
-        ownerMap = L.map('ownerVehicleMap', { zoomControl: true }).setView([0, 0], 2);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap contributors' }).addTo(ownerMap);
+        if (!window.L) {
+            document.querySelectorAll('.leaflet-load-error').forEach(node => node.classList.remove('d-none'));
+            showMapMessage('danger', 'Leaflet could not be loaded. Check your internet connection.');
+            return;
+        }
+        ownerMap = L.map('ownerVehicleMap', { zoomControl: true }).setView(mapSettings.center, mapSettings.zoom);
+        L.tileLayer(mapSettings.tileUrl, { maxZoom: 19, attribution: mapSettings.attribution })
+            .on('tileerror', () => showMapMessage('warning', 'Map tiles could not be loaded. Check your internet connection.'))
+            .addTo(ownerMap);
         renderVehicleLocation(ownerVehicleLocation, true);
         setInterval(refreshVehicleLocation, 15000);
+        window.addEventListener('resize', () => { if (ownerMap) ownerMap.invalidateSize(); });
     }
 
     function refreshVehicleLocation() {
@@ -183,10 +193,10 @@
         document.getElementById('ownerGpsMessage').textContent = 'Location tracking stopped.';
     });
 
-    const leafletScript = document.createElement('script');
-    leafletScript.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    leafletScript.onload = initOwnerMap;
-    leafletScript.onerror = () => showMapMessage('danger', 'Leaflet could not be loaded. Check your internet connection.');
-    document.head.appendChild(leafletScript);
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initOwnerMap);
+    } else {
+        initOwnerMap();
+    }
 </script>
 @endsection

@@ -7,13 +7,15 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/portal-theme.css') }}" rel="stylesheet">
 </head>
 <body>
     <div class="shell">
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar" id="sidebar" aria-label="Main navigation">
             <div class="brand">
                 <span class="brand-mark"><i class="bi bi-signpost-2-fill"></i></span>
                 <div><strong>TRANSIT<br>DESK</strong><small>Municipal Operations</small></div>
+                <button class="sidebar-collapse" id="sidebar-collapse" type="button" aria-label="Collapse sidebar" title="Collapse sidebar" aria-expanded="true"><i class="bi bi-chevron-bar-left"></i></button>
             </div>
 
             @if (auth()->user()->role === 'operator')
@@ -139,7 +141,7 @@
 
         <main class="main">
             <header class="topbar">
-                <button class="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="bi bi-list"></i></button>
+                <button class="menu-btn" id="menu-toggle" type="button" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false"><i class="bi bi-list"></i></button>
                 <div class="breadcrumb">Municipal Transport Office <span>/</span> {{ $title ?? 'Dashboard' }}</div>
                 <div class="top-actions">
                     <span class="role-pill">{{ strtoupper(auth()->user()->roleLabel()) }}</span>
@@ -177,6 +179,54 @@
             </section>
         </main>
     </div>
+    <div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true"></div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (() => {
+            const shell = document.querySelector('.shell');
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebarScrim = document.getElementById('sidebar-scrim');
+            const collapseToggle = document.getElementById('sidebar-collapse');
+
+            const setMobileNavigation = (isOpen) => {
+                sidebar.classList.toggle('open', isOpen);
+                sidebarScrim.classList.toggle('open', isOpen);
+                document.body.classList.toggle('nav-open', isOpen);
+                menuToggle.setAttribute('aria-expanded', String(isOpen));
+                menuToggle.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
+            };
+
+            menuToggle.addEventListener('click', () => {
+                setMobileNavigation(!sidebar.classList.contains('open'));
+            });
+            sidebarScrim.addEventListener('click', () => setMobileNavigation(false));
+            sidebar.addEventListener('click', (event) => {
+                if (event.target.closest('a.nav-link')) setMobileNavigation(false);
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') setMobileNavigation(false);
+            });
+            window.matchMedia('(max-width: 900px)').addEventListener('change', () => setMobileNavigation(false));
+
+            collapseToggle.addEventListener('click', () => {
+                const isCollapsed = shell.classList.toggle('sidebar-collapsed');
+                collapseToggle.setAttribute('aria-expanded', String(!isCollapsed));
+                collapseToggle.setAttribute('aria-label', isCollapsed ? 'Expand sidebar' : 'Collapse sidebar');
+                collapseToggle.title = isCollapsed ? 'Expand sidebar' : 'Collapse sidebar';
+                collapseToggle.querySelector('i').className = isCollapsed ? 'bi bi-chevron-bar-right' : 'bi bi-chevron-bar-left';
+                sidebar.querySelectorAll('a.nav-link').forEach((link) => {
+                    if (isCollapsed) {
+                        const label = link.textContent.trim();
+                        link.title = label;
+                        link.setAttribute('aria-label', label);
+                    } else {
+                        link.removeAttribute('title');
+                        link.removeAttribute('aria-label');
+                    }
+                });
+            });
+        })();
+    </script>
 </body>
 </html>

@@ -9,7 +9,7 @@ class ReportController extends Controller
 {
     public function create()
     {
-        return view('report-user.reports.create', ['apiKey' => config('services.google_maps.api_key')]);
+        return view('report-user.reports.create');
     }
 
     public function store(Request $request)
@@ -21,7 +21,17 @@ class ReportController extends Controller
             'latitude' => ['required', 'numeric', 'between:-90,90'],
             'longitude' => ['required', 'numeric', 'between:-180,180'],
             'description' => ['required', 'string', 'max:5000'],
+        ], [
+            'latitude.required' => 'Please select the incident location on the map.',
+            'longitude.required' => 'Please select the incident location on the map.',
+            'latitude.numeric' => 'The selected latitude is not valid. Please select the location on the map again.',
+            'longitude.numeric' => 'The selected longitude is not valid. Please select the location on the map again.',
+            'latitude.between' => 'The selected latitude is outside the valid range. Please select the location on the map again.',
+            'longitude.between' => 'The selected longitude is outside the valid range. Please select the location on the map again.',
         ]);
+
+        $data['latitude'] = round((float) $data['latitude'], 8);
+        $data['longitude'] = round((float) $data['longitude'], 8);
 
         $data['submitted_by'] = auth()->id();
         $data['report_number'] = 'RPT-'.now()->format('YmdHis').'-'.auth()->id();

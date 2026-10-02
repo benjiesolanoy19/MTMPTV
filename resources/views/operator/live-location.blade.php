@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+@include('partials.leaflet')
 <div class="page-head">
     <div>
         <div class="eyebrow">LOCATION</div>
@@ -45,8 +46,9 @@
     <div class="col-lg-7">
         <div class="panel">
             <h3 class="mb-3">Current map</h3>
-            <div id="operatorMapMessage" class="alert alert-warning">Loading map...</div>
-            <div id="operatorLocationMap" style="height: 420px; width: 100%; border-radius: 14px; background: #e9ecef;"></div>
+            <div id="operatorMapMessage" class="alert alert-secondary d-none"></div>
+            <div class="alert alert-warning d-none leaflet-load-error mb-3">Map library could not be loaded. Check your internet connection and reload the page.</div>
+            <div id="operatorLocationMap" class="leaflet-map" style="min-height: 430px; height: 420px;"></div>
         </div>
     </div>
 </div>
@@ -56,103 +58,89 @@
     const latestLocation = @json($latestLocation);
     const startUrl = @json(route('operator.live-location.store'));
     const stopUrl = @json(route('operator.live-location.stop'));
-    const apiKey = @json(config('services.google_maps.api_key'));
+    const mapSettings = window.mapDefaults;
+
+    let operatorMap = null;
+    let operatorMarker = null;
     let locationWatchId = null;
-    let operatorMap;
-    let operatorMarker;
+    let controlsBound = false;
+
+    function showOperatorMapMessage(type, text) {
+        const node = document.getElementById('operatorMapMessage');
+        node.className = 'alert alert-' + type;
+        node.textContent = text;
+    }
+
+    function setStatus(node, type, text) {
+        node.classList.remove('d-none', 'alert-info', 'alert-success', 'alert-danger');
+        node.classList.add('alert-' + type);
+        node.textContent = text;
+    }
+
+    function hasSavedLocation() {
+        return latestLocation
+            && Number.isFinite(parseFloat(latestLocation.latitude))
+            && Number.isFinite(parseFloat(latestLocation.longitude));
+    }
 
     function initOperatorMap() {
-        const center = latestLocation && latestLocation.latitude && latestLocation.longitude
-            ? { lat: parseFloat(latestLocation.latitude), lng: parseFloat(latestLocation.longitude) }
-            : { lat: 14.5995, lng: 120.9842 };
+        if (operatorMap) return;
 
-        document.getElementById('operatorMapMessage').className = 'alert alert-secondary d-none';
-        operatorMap = new google.maps.Map(document.getElementById('operatorLocationMap'), {
-            center,
-            zoom: 14,
-            mapTypeControl: true,
-            streetViewControl: false,
-            fullscreenControl: true,
-        });
-
-        if (latestLocation && latestLocation.latitude && latestLocation.longitude) {
-            new google.maps.Marker({
-                map: operatorMap,
-                position: { lat: parseFloat(latestLocation.latitude), lng: parseFloat(latestLocation.longitude) },
-                title: operatorVehicle?.plate_number || 'Vehicle'
-            });
+        if (!window.L) {
+            document.querySelectorAll('.leaflet-load-error').forEach(function (node) { node.classList.remove('d-none'); });
+            showOperatorMapMessage('danger', 'Map library could not be loaded. Check your internet connection.');
+            return;
         }
 
-        const statusNode = document.getElementById('locationStatusMessage');
-        document.getElementById('startLocationSharingBtn')?.addEventListener('click', function () {
-            if (!navigator.geolocation) {
-                statusNode.classList.remove('d-none');
-                statusNode.classList.add('alert-danger');
-                statusNode.textContent = 'This browser does not support geolocation.';
-                return;
-            }
+        const center = hasSavedLocation()
+            ? [parseFloat(latestLocation.latitude), parseFloat(latestLocation.longitude)]
+            : mapSettings.center;
 
-            statusNode.classList.remove('d-none');
-            statusNode.classList.remove('alert-danger');
-            statusNode.classList.add('alert-info');
-            statusNode.textContent = 'Requesting GPS permission...';
+        operatorMap = L.map('operatorLocationMap', { zoomControl: true }).setView(center, mapSettings.zoom);
 
-            statusNode.textContent = 'Getting your location...';
-            locationWatchId = navigator.geolocation.watchPosition(function (position) {
-                statusNode.textContent = 'Sharing location...';
-                fetch(startUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: JSON.stringify({
-                        vehicle_id: operatorVehicle.id,
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                        accuracy: position.coords.accuracy,
-                        speed: position.coords.speed || 0,
-                        heading: position.coords.heading || 0,
-                    })
-                })
-                .then(function (response) {
-                    if (!response.ok) throw new Error('Location request failed');
-                    return response.json();
-                })
-                .then(function (payload) {
-                    statusNode.classList.remove('alert-info'); statusNode.classList.add('alert-success');
-                    statusNode.textContent = 'Location sharing ON. Accuracy: ' + Math.round(position.coords.accuracy) + ' meters.';
-                    document.getElementById('currentLatitude').textContent = position.coords.latitude.toFixed(6);
-                    document.getElementById('currentLongitude').textContent = position.coords.longitude.toFixed(6);
-                    document.getElementById('currentAccuracy').textContent = Math.round(position.coords.accuracy) + ' meters';
-                    document.getElementById('currentUpdated').textContent = new Date().toLocaleTimeString();
-                    if (operatorMap) {
-                        const point = { lat: position.coords.latitude, lng: position.coords.longitude };
-                        operatorMap.setCenter(point); operatorMap.setZoom(16);
-                        operatorMarker?.setMap(null); operatorMarker = new google.maps.Marker({ map: operatorMap, position: point, title: operatorVehicle?.plate_number || 'Vehicle' });
-                    }
-                })
-                .catch(function () {
-                    statusNode.classList.remove('alert-info');
-                    statusNode.classList.add('alert-danger');
-                    statusNode.textContent = 'Unable to start location sharing.';
-                });
-            }, function () {
-                statusNode.classList.remove('d-none');
-                statusNode.classList.add('alert-danger');
-                statusNode.textContent = 'Location permission was denied. Enable location access to share GPS data.';
-            }, {
-                enableHighAccuracy: true,
-                timeout: 20000,
-                maximumAge: 5000
-            });
+        L.tileLayer(mapSettings.tileUrl, { maxZoom: 19, attribution: mapSettings.attribution })
+            .on('tileerror', function () {
+                showOperatorMapMessage('warning', 'Map tiles could not be loaded. Check your internet connection.');
+            })
+            .addTo(operatorMap);
+
+        if (hasSavedLocation()) {
+            operatorMarker = L.marker(center, { title: operatorVehicle?.plate_number || 'Vehicle' }).addTo(operatorMap);
+        }
+
+        window.addEventListener('resize', function () {
+            if (operatorMap) operatorMap.invalidateSize();
         });
+    }
 
-        document.getElementById('stopLocationSharingBtn')?.addEventListener('click', function () {
-            if (locationWatchId !== null) { navigator.geolocation.clearWatch(locationWatchId); locationWatchId = null; }
-            fetch(stopUrl, {
+    function updateOperatorMarker(latitude, longitude) {
+        if (!operatorMap) return;
+        const point = [latitude, longitude];
+
+        if (operatorMarker) {
+            operatorMarker.setLatLng(point);
+        } else {
+            operatorMarker = L.marker(point, { title: operatorVehicle?.plate_number || 'Vehicle' }).addTo(operatorMap);
+        }
+
+        operatorMap.setView(point, mapSettings.locationZoom);
+    }
+
+    function startLocationSharing(statusNode) {
+        if (!navigator.geolocation) {
+            setStatus(statusNode, 'danger', 'This browser does not support geolocation.');
+            return;
+        }
+
+        if (!operatorVehicle) {
+            setStatus(statusNode, 'danger', 'No vehicle is assigned to this operator profile.');
+            return;
+        }
+
+        setStatus(statusNode, 'info', 'Requesting GPS permission...');
+
+        locationWatchId = navigator.geolocation.watchPosition(function (position) {
+            fetch(startUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -160,35 +148,97 @@
                     'Accept': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 },
-                body: JSON.stringify({ vehicle_id: operatorVehicle.id })
+                body: JSON.stringify({
+                    vehicle_id: operatorVehicle.id,
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude,
+                    accuracy: position.coords.accuracy,
+                    speed: position.coords.speed || 0,
+                    heading: position.coords.heading || 0,
+                })
             })
             .then(function (response) {
-                if (!response.ok) throw new Error('Stop request failed');
+                if (!response.ok) throw new Error('Location request failed');
                 return response.json();
             })
-            .then(function (payload) {
-                statusNode.classList.remove('alert-info');
-                statusNode.classList.add('alert-success');
-                statusNode.textContent = payload.message || 'Location sharing stopped.';
-                window.location.reload();
+            .then(function () {
+                setStatus(statusNode, 'success', 'Location sharing ON. Accuracy: approximately ' + Math.round(position.coords.accuracy) + ' meters.');
+                document.getElementById('currentLatitude').textContent = position.coords.latitude.toFixed(6);
+                document.getElementById('currentLongitude').textContent = position.coords.longitude.toFixed(6);
+                document.getElementById('currentAccuracy').textContent = Math.round(position.coords.accuracy) + ' meters';
+                document.getElementById('currentUpdated').textContent = new Date().toLocaleTimeString();
+                updateOperatorMarker(position.coords.latitude, position.coords.longitude);
             })
             .catch(function () {
-                statusNode.classList.remove('alert-info');
-                statusNode.classList.add('alert-danger');
-                statusNode.textContent = 'Unable to stop location sharing.';
+                setStatus(statusNode, 'danger', 'Unable to start location sharing.');
             });
+        }, function (error) {
+            if (error.code === error.PERMISSION_DENIED) {
+                setStatus(statusNode, 'danger', 'Location permission was denied. Enable location access to share GPS data.');
+            } else if (error.code === error.POSITION_UNAVAILABLE) {
+                setStatus(statusNode, 'danger', 'Your location could not be determined.');
+            } else if (error.code === error.TIMEOUT) {
+                setStatus(statusNode, 'danger', 'Location request timed out. Please try again.');
+            } else {
+                setStatus(statusNode, 'danger', 'Unable to obtain your current location.');
+            }
+        }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 5000 });
+    }
+
+    function stopLocationSharing(statusNode) {
+        if (locationWatchId !== null) {
+            navigator.geolocation.clearWatch(locationWatchId);
+            locationWatchId = null;
+        }
+
+        fetch(stopUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: JSON.stringify({ vehicle_id: operatorVehicle ? operatorVehicle.id : null })
+        })
+        .then(function (response) {
+            if (!response.ok) throw new Error('Stop request failed');
+            return response.json();
+        })
+        .then(function (payload) {
+            setStatus(statusNode, 'success', payload.message || 'Location sharing stopped.');
+            window.location.reload();
+        })
+        .catch(function () {
+            setStatus(statusNode, 'danger', 'Unable to stop location sharing.');
         });
     }
 
-    if (apiKey) {
-        const script = document.createElement('script');
-        script.src = 'https://maps.googleapis.com/maps/api/js?key=' + apiKey + '&callback=initOperatorMap&v=weekly';
-        script.defer = true;
-        document.head.appendChild(script);
-    } else {
-        document.getElementById('operatorMapMessage').textContent = 'Google Maps API key is not configured.';
+    function bindOperatorControls() {
+        if (controlsBound) return;
+        controlsBound = true;
+
+        const statusNode = document.getElementById('locationStatusMessage');
+        if (!statusNode) return;
+
+        document.getElementById('startLocationSharingBtn')?.addEventListener('click', function () {
+            startLocationSharing(statusNode);
+        });
+
+        document.getElementById('stopLocationSharingBtn')?.addEventListener('click', function () {
+            stopLocationSharing(statusNode);
+        });
     }
 
-    window.initOperatorMap = initOperatorMap;
+    function bootOperatorMap() {
+        initOperatorMap();
+        bindOperatorControls();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bootOperatorMap);
+    } else {
+        bootOperatorMap();
+    }
 </script>
 @endsection

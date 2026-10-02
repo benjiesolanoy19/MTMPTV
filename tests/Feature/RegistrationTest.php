@@ -63,4 +63,36 @@ class RegistrationTest extends TestCase
         $this->actingAs($user)->post(route('logout'))->assertRedirect(route('login'));
         $this->assertGuest();
     }
+
+    public function test_registration_page_is_never_rate_limited(): void
+    {
+        // Opening the form must stay available no matter how often it is loaded.
+        foreach (range(1, config('services.throttle.register_max_attempts') + 10) as $ignored) {
+            $this->get(route('register'))->assertOk()->assertSee('Create your account.');
+        }
+
+        $this->assertGuest();
+    }
+
+    public function test_registration_submissions_are_rate_limited(): void
+    {
+        $limit = config('services.throttle.register_max_attempts');
+
+        for ($attempt = 1; $attempt <= $limit; $attempt++) {
+            $this->post(route('register.store'), $this->registrationData([
+                'username' => 'limit.user'.$attempt,
+                'email' => 'limit'.$attempt.'@example.test',
+            ]))->assertRedirect(route('login'));
+        }
+
+        $this->assertDatabaseCount('users', $limit);
+
+        // The next attempt is rejected with 429 and must not create a user.
+        $this->post(route('register.store'), $this->registrationData([
+            'username' => 'limit.overflow',
+            'email' => 'overflow@example.test',
+        ]))->assertStatus(429);
+
+        $this->assertDatabaseCount('users', $limit);
+    }
 }

@@ -38,8 +38,7 @@ class LiveMapController extends Controller
             'vehicles' => $vehiclesData,
             'onlineCount' => $vehiclesData->where('status', 'online')->count(),
             'offlineCount' => $vehiclesData->where('status', 'offline')->count(),
-            'apiKey' => config('services.google_maps.api_key'),
-        ]);
+            ]);
     }
 
     public function data()
