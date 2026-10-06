@@ -27,7 +27,7 @@ class RoleAccessTest extends TestCase
         $this->grant('operator', ['view dashboard', 'operator portal', 'operator applications']);
         $user = $this->operatorUser('legacy_operator');
 
-        $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSee('Applications')->assertDontSee('Operators')->assertDontSee('User management');
+        $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSee('Applications')->assertSee('Apply as Administrator')->assertDontSee('Operators')->assertDontSee('User management');
         $this->actingAs($user)->get(route('operators.index'))->assertForbidden();
         $this->actingAs($user)->get(route('vehicles.index'))->assertForbidden();
         $this->actingAs($user)->get(route('profile.show'))->assertOk();
@@ -39,7 +39,8 @@ class RoleAccessTest extends TestCase
         $user = User::factory()->create(['role' => 'vehicle_owner']);
 
         $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSee('Vehicles')->assertSee('Applications')->assertDontSee('Operators');
-        $this->actingAs($user)->get(route('vehicles.index'))->assertOk();
+        $this->actingAs($user)->get(route('vehicles.index'))->assertForbidden();
+        $this->actingAs($user)->get(route('vehicle-owner.vehicles.index'))->assertOk();
         $this->actingAs($user)->get(route('operators.index'))->assertForbidden();
     }
 
@@ -66,7 +67,7 @@ class RoleAccessTest extends TestCase
     {
         $user = User::factory()->create(['role' => 'admin']);
 
-        $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSee('Operators')->assertSee('Vehicles')->assertSee('Applications')->assertSee('User management');
+        $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertSee('Operators')->assertSee('Vehicles')->assertSee('Transport applications')->assertSee('Users')->assertSee('Administrator applications')->assertDontSee('Apply as Administrator');
         $this->actingAs($user)->get(route('operators.index'))->assertOk();
         $this->actingAs($user)->get(route('vehicles.index'))->assertOk();
         $this->actingAs($user)->get(route('users.index'))->assertOk();

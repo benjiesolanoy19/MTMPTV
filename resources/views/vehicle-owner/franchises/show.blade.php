@@ -3,7 +3,7 @@
 @section('content')
 <div class="page-head">
     <div>
-        <a href="{{ route('vehicle-owner.franchises.index') }}" class="text-link"><i class="bi bi-arrow-left"></i> My franchise</a>
+        <a href="{{ route('vehicle-owner.franchises.index') }}" class="text-link"><i data-lucide="arrow-left" class="" aria-hidden="true"></i> My franchise</a>
         <h1>{{ $franchise->franchise_number }}</h1>
         <p class="muted">Franchise record for {{ $franchise->vehicle?->plate_number ?? 'this vehicle' }}</p>
     </div>

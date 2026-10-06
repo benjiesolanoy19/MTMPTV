@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
+use App\Models\{Operator, User};
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -25,7 +25,13 @@ class RegistrationTest extends TestCase
         $response = $this->post(route('register.store'), $this->registrationData());
         $response->assertRedirect(route('login'));
         $this->assertDatabaseHas('users', ['username' => 'test.operator', 'role' => 'operator', 'status' => 'active']);
-        $this->assertTrue(Hash::check('SecurePass1', User::where('username', 'test.operator')->first()->password));
+        $user = User::where('username', 'test.operator')->firstOrFail();
+        $this->assertTrue(Hash::check('SecurePass1', $user->password));
+        $this->assertDatabaseHas('operators', [
+            'user_id' => $user->id,
+            'first_name' => $user->name,
+            'last_name' => '',
+        ]);
     }
 
     public function test_registration_rejects_admin_role_and_missing_terms(): void

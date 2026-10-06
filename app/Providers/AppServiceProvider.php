@@ -7,6 +7,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -25,9 +26,36 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->configureRateLimiting();
+        View::composer('layouts.app', function ($view): void {
+            $user = request()->user();
+            $canViewNotifications = $user && (
+                $user->hasPermission('view notifications')
+                || $user->hasPermission('operator notifications')
+                || $user->hasPermission('vehicle owner notifications')
+            );
+
+            $view->with('topbarNotifications', $canViewNotifications
+                ? $user->notifications()->latest()->limit(5)->get()->map(function ($notification) {
+                    $url = $notification->action_url;
+                    $notification->setAttribute(
+                        'safe_action_url',
+                        is_string($url)
+                            && str_starts_with($url, '/')
+                            && ! str_starts_with($url, '//')
+                            && ! str_contains($url, '\\')
+                                ? $url
+                                : null
+                    );
+
+                    return $notification;
+                })
+                : collect());
+            $view->with('topbarUnreadCount', $canViewNotifications ? $user->notifications()->whereNull('read_at')->count() : 0);
+            $view->with('canViewTopbarNotifications', (bool) $canViewNotifications);
+        });
 
         Gate::before(function (User $user, string $ability) {
-            return $user->isAdmin() ? true : null;
+            return $user->isAdmin() && $user->status === 'active' ? true : null;
         });
 
         foreach ([

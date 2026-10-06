@@ -3,7 +3,7 @@
 @section('content')
 <div class="page-head">
     <div>
-        <a href="{{ route('vehicle-owner.permits.index') }}" class="text-link"><i class="bi bi-arrow-left"></i> My permits</a>
+        <a href="{{ route('vehicle-owner.permits.index') }}" class="text-link"><i data-lucide="arrow-left" class="" aria-hidden="true"></i> My permits</a>
         <h1>{{ $permit->permit_number }}</h1>
         <p class="muted">Permit record for {{ $permit->vehicle?->plate_number ?? 'this vehicle' }}</p>
     </div>

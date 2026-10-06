@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Support\RolePermissionMatrix;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Password;
 
@@ -18,7 +19,7 @@ class RegisterUserRequest extends FormRequest
             'mobile_number' => ['required', 'regex:/^(?:\+63|0)9\d{9}$/'],
             'address' => ['required', 'string', 'max:500'],
             'password' => ['required', 'confirmed', Password::min(8)->letters()->mixedCase()->numbers()],
-            'role' => ['required', 'in:viewer,operator,vehicle_owner'],
+            'role' => ['required', 'in:'.implode(',', RolePermissionMatrix::PUBLIC_REGISTRATION_ROLES)],
             'terms' => ['accepted'],
             'privacy' => ['accepted'],
         ];

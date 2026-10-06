@@ -20,7 +20,7 @@ class VehicleOwnerPortalController extends Controller
                 [
                     'operator_code' => 'VO-'.now()->format('Ymd').'-'.str_pad((string) $user->id, 4, '0', STR_PAD_LEFT),
                     'first_name' => $user->name,
-                    'last_name' => 'Owner',
+                    'last_name' => '',
                     'address' => $user->address,
                     'contact_number' => $user->mobile_number,
                     'email' => $user->email,

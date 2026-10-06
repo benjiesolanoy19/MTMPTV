@@ -7,7 +7,7 @@
         <h1>My vehicles</h1>
         <p class="muted">Vehicles registered under your ownership.</p>
     </div>
-    <a href="{{ route('vehicle-owner.vehicles.create') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Register Vehicle</a>
+    <a href="{{ route('vehicle-owner.vehicles.create') }}" class="btn btn-primary"><i data-lucide="plus" class="me-1" aria-hidden="true"></i> Register Vehicle</a>
 </div>
 
 <div class="panel">
@@ -34,8 +34,8 @@
                         <td>{{ $vehicle->year_model ?? '—' }}</td>
                         <td>{{ ucfirst($vehicle->status) }}</td>
                         <td class="d-flex gap-2 flex-wrap">
-                            <a href="{{ route('vehicle-owner.vehicles.show', $vehicle) }}" class="btn btn-sm btn-light border"><i class="bi bi-eye"></i> View Details</a>
-                            <a href="{{ route('vehicle-owner.vehicles.location', $vehicle) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-geo-alt"></i> View Location</a>
+                            <a href="{{ route('vehicle-owner.vehicles.show', $vehicle) }}" class="btn btn-sm btn-light border"><i data-lucide="eye" class="" aria-hidden="true"></i> View Details</a>
+                            <a href="{{ route('vehicle-owner.vehicles.location', $vehicle) }}" class="btn btn-sm btn-outline-primary"><i data-lucide="map-pin" class="" aria-hidden="true"></i> View Location</a>
                         </td>
                     </tr>
                 @empty

@@ -10,7 +10,12 @@ class RoleMiddleware
 {
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        abort_unless($request->user() && in_array($request->user()->role, $roles, true), 403);
+        abort_unless(
+            $request->user()
+                && $request->user()->status === 'active'
+                && in_array($request->user()->role, $roles, true),
+            403
+        );
         return $next($request);
     }
 }

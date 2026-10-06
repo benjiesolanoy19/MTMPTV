@@ -27,6 +27,47 @@ class ReportUserTest extends TestCase
         }
     }
 
+    public function test_dashboard_shows_zero_report_counts_and_an_empty_state_when_database_is_empty(): void
+    {
+        $user = $this->reportUser();
+
+        $response = $this->actingAs($user)->get(route('dashboard'))->assertOk();
+
+        $response->assertSee('<small>Total reports</small><strong>0</strong>', false)
+            ->assertSee('<small>Pending</small><strong>0</strong>', false)
+            ->assertSee('<small>Under review</small><strong>0</strong>', false)
+            ->assertSee('<small>Resolved / closed</small><strong>0</strong>', false)
+            ->assertSeeText('No reports yet')
+            ->assertSeeText('Public reports submitted by users will appear here.')
+            ->assertDontSeeText('RPT-001')
+            ->assertDontSeeText('RPT-002');
+    }
+
+    public function test_dashboard_statistics_and_recent_reports_reflect_database_records(): void
+    {
+        $user = $this->reportUser();
+        foreach (['Submitted', 'Pending', 'Under Review', 'Resolved', 'Closed'] as $index => $status) {
+            Report::create([
+                'report_number' => 'RPT-REAL-'.$index,
+                'submitted_by' => $user->id,
+                'report_type' => 'Road obstruction',
+                'date_submitted' => now()->subDays($index)->toDateString(),
+                'location' => 'Recorded location '.$index,
+                'description' => 'Report details stored in the database.',
+                'status' => $status,
+            ]);
+        }
+
+        $response = $this->actingAs($user)->get(route('dashboard'))->assertOk();
+
+        $response->assertSee('<small>Total reports</small><strong>5</strong>', false)
+            ->assertSee('<small>Pending</small><strong>1</strong>', false)
+            ->assertSee('<small>Under review</small><strong>1</strong>', false)
+            ->assertSee('<small>Resolved / closed</small><strong>2</strong>', false)
+            ->assertSeeText('RPT-REAL-0')
+            ->assertSeeText('Recorded location 0');
+    }
+
     public function test_report_user_cannot_access_management_or_application_routes(): void
     {
         $user = $this->reportUser();

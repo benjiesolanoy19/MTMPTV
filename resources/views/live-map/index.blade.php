@@ -13,7 +13,7 @@
 <div class="row g-4 mb-4">
     <div class="col-md-4">
         <div class="stat-card h-100">
-            <span class="stat-icon blue"><i class="bi bi-truck"></i></span>
+            <span class="stat-icon blue"><i data-lucide="truck" class="" aria-hidden="true"></i></span>
             <div>
                 <small>Active vehicles</small>
                 <strong>{{ count($vehicles) }}</strong>
@@ -22,7 +22,7 @@
     </div>
     <div class="col-md-4">
         <div class="stat-card h-100">
-            <span class="stat-icon teal"><i class="bi bi-wifi"></i></span>
+            <span class="stat-icon teal"><i data-lucide="wifi" class="" aria-hidden="true"></i></span>
             <div>
                 <small>Online</small>
                 <strong>{{ $onlineCount }}</strong>
@@ -31,7 +31,7 @@
     </div>
     <div class="col-md-4">
         <div class="stat-card h-100">
-            <span class="stat-icon coral"><i class="bi bi-circle-fill"></i></span>
+            <span class="stat-icon coral"><i data-lucide="circle" class="" aria-hidden="true"></i></span>
             <div>
                 <small>Offline</small>
                 <strong>{{ $offlineCount }}</strong>
@@ -49,8 +49,8 @@
         <div class="d-flex gap-2 align-items-center flex-wrap">
             <input id="vehicleSearch" class="form-control form-control-sm" placeholder="Search vehicle..." style="max-width: 180px;">
             <select id="vehicleFilter" class="form-select form-select-sm" style="max-width: 120px;"><option value="all">All</option><option value="online">Online</option><option value="offline">Offline</option></select>
-            <button type="button" id="myLocationBtn" class="btn btn-sm btn-outline-primary"><i class="bi bi-crosshair"></i> My location</button>
-            <button type="button" id="refreshMapBtn" class="btn btn-sm btn-primary"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+            <button type="button" id="myLocationBtn" class="btn btn-sm btn-outline-primary"><i data-lucide="crosshair" class="" aria-hidden="true"></i> My location</button>
+            <button type="button" id="refreshMapBtn" class="btn btn-sm btn-primary"><i data-lucide="rotate-cw" class="" aria-hidden="true"></i> Refresh</button>
         </div>
     </div>
 

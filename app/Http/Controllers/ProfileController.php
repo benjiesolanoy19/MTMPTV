@@ -8,11 +8,16 @@ use Illuminate\Validation\Rule;
 
 class ProfileController extends Controller
 {
-    public function show() { return view('profile.show'); }
+    public function show()
+    {
+        abort_unless(auth()->user()->status === 'active', 403);
+        return view('profile.show');
+    }
 
     public function update(Request $request)
     {
         $user = $request->user();
+        abort_unless($user->status === 'active', 403);
         $data = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'username' => ['required', 'string', 'min:3', 'max:30', 'regex:/^[A-Za-z][A-Za-z0-9._-]*$/', Rule::unique('users')->ignore($user)],

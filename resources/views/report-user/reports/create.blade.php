@@ -26,14 +26,14 @@
             <div class="small text-muted mb-3" id="reportCoordinates">No map location selected.</div>
             <label class="form-label">Description</label>
             <textarea name="description" class="form-control" rows="6" required>{{ old('description') }}</textarea>
-            <button class="btn btn-primary mt-3" type="submit"><i class="bi bi-send me-1"></i> Submit report</button>
+            <button class="btn btn-primary mt-3" type="submit"><i data-lucide="send" class="me-1" aria-hidden="true"></i> Submit report</button>
         </div>
     </div>
     <div class="col-lg-7">
         <div class="panel">
             <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
                 <div><h3 class="mb-1">Select location</h3><p class="muted mb-0">Click the map or use your current GPS position.</p></div>
-                <button type="button" class="btn btn-outline-primary btn-sm text-nowrap" id="reportMyLocation"><i class="bi bi-crosshair me-1"></i> My location</button>
+                <button type="button" class="btn btn-outline-primary btn-sm text-nowrap" id="reportMyLocation"><i data-lucide="crosshair" class="me-1" aria-hidden="true"></i> My location</button>
             </div>
             <div id="reportMapMessage" class="alert alert-secondary d-none mb-3"></div>
             <div class="alert alert-warning d-none leaflet-load-error mb-3">

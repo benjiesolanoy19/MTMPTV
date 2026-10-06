@@ -3,7 +3,7 @@
 @section('content')
 <div class="page-head">
     <div>
-        <a href="{{ route('vehicle-owner.applications.index') }}" class="text-link"><i class="bi bi-arrow-left"></i> My applications</a>
+        <a href="{{ route('vehicle-owner.applications.index') }}" class="text-link"><i data-lucide="arrow-left" class="" aria-hidden="true"></i> My applications</a>
         <h1>{{ $application->application_number }}</h1>
         <p class="muted">{{ $application->application_type }} · {{ $application->status }}</p>
     </div>

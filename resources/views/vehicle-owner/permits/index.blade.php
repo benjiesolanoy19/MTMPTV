@@ -30,7 +30,7 @@
                         <td>{{ $permit->issue_date->format('d M Y') }}</td>
                         <td>{{ $permit->expiry_date->format('d M Y') }}</td>
                         <td>{{ $permit->status }}</td>
-                        <td><a href="{{ route('vehicle-owner.permits.show', $permit) }}" class="btn btn-sm btn-light border"><i class="bi bi-eye"></i> View</a></td>
+                        <td><a href="{{ route('vehicle-owner.permits.show', $permit) }}" class="btn btn-sm btn-light border"><i data-lucide="eye" class="" aria-hidden="true"></i> View</a></td>
                     </tr>
                 @empty
                     <tr><td colspan="6" class="text-center py-5 text-muted">No permits found.</td></tr>

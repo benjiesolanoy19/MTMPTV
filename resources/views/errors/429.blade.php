@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Too many requests | Transit Desk</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/auth.css') }}" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
 </head>
 <body class="login-page">
 <main class="login-art">
-    <div class="seal"><i class="bi bi-signpost-2-fill"></i></div>
+    <div class="seal"><i data-lucide="signpost-big" class="" aria-hidden="true"></i></div>
     <div class="eyebrow">LOCAL GOVERNMENT UNIT</div>
     <h1>Transit Desk</h1>
     <p>Municipal tricycle and public transport permitting, franchise management, and violation tracking.</p>
@@ -31,11 +31,12 @@
             </div>
         @endif
         <div class="d-flex gap-2 flex-wrap">
-            <a class="btn btn-primary" href="{{ route('login') }}"><i class="bi bi-box-arrow-in-left me-1"></i> Back to sign in</a>
-            <a class="btn btn-outline-secondary" href="{{ route('register') }}"><i class="bi bi-person-plus me-1"></i> Registration page</a>
+            <a class="btn btn-primary" href="{{ route('login') }}"><i data-lucide="log-in" class="me-1" aria-hidden="true"></i> Back to sign in</a>
+            <a class="btn btn-outline-secondary" href="{{ route('register') }}"><i data-lucide="user-round-plus" class="me-1" aria-hidden="true"></i> Registration page</a>
         </div>
-        <p class="login-note"><i class="bi bi-shield-check me-1"></i> This limit protects the portal against automated abuse.</p>
+        <p class="login-note"><i data-lucide="shield-check" class="me-1" aria-hidden="true"></i> This limit protects the portal against automated abuse.</p>
     </div>
 </section>
+<script>document.addEventListener('DOMContentLoaded',()=>window.lucide?.createIcons({attrs:{'stroke-width':1.8}}));</script>
 </body>
 </html>

@@ -11,19 +11,19 @@
 
 	<div class="stat-grid">
 		<div class="stat-card">
-			<span class="stat-icon blue"><i class="bi bi-file-earmark-text"></i></span>
+			<span class="stat-icon blue"><i data-lucide="file-text" class="" aria-hidden="true"></i></span>
 			<div><small>Total reports</small><strong>{{ $stats['total'] }}</strong></div>
 		</div>
 		<div class="stat-card">
-			<span class="stat-icon amber"><i class="bi bi-hourglass-split"></i></span>
+			<span class="stat-icon amber"><i data-lucide="hourglass" class="" aria-hidden="true"></i></span>
 			<div><small>Pending</small><strong>{{ $stats['pending'] }}</strong></div>
 		</div>
 		<div class="stat-card">
-			<span class="stat-icon blue"><i class="bi bi-search"></i></span>
+			<span class="stat-icon blue"><i data-lucide="search" class="" aria-hidden="true"></i></span>
 			<div><small>Under review</small><strong>{{ $stats['review'] }}</strong></div>
 		</div>
 		<div class="stat-card">
-			<span class="stat-icon teal"><i class="bi bi-check2-circle"></i></span>
+			<span class="stat-icon teal"><i data-lucide="circle-check" class="" aria-hidden="true"></i></span>
 			<div><small>Resolved / closed</small><strong>{{ $stats['resolved'] }}</strong></div>
 		</div>
 	</div>
@@ -34,7 +34,7 @@
 				<h3>Recent reports</h3>
 				<p class="muted">View-only public report records</p>
 			</div>
-			<a href="{{ route('reports.index') }}" class="text-link">View all <i class="bi bi-arrow-up-right"></i></a>
+			<a href="{{ route('reports.index') }}" class="text-link">View all <i data-lucide="arrow-up-right" class="" aria-hidden="true"></i></a>
 		</div>
 		<div class="table-responsive">
 			<table class="table align-middle">
@@ -65,17 +65,17 @@
 							<td>{{ $report->report_type }}</td>
 							<td>{{ $report->location ?: '—' }}</td>
 							<td><span class="report-status {{ $statusTheme }}">{{ $report->status }}</span></td>
-							<td><a class="btn btn-sm btn-light border" href="{{ route('reports.show', $report) }}"><i class="bi bi-eye"></i> View</a></td>
+							<td><a class="btn btn-sm btn-light border" href="{{ route('reports.show', $report) }}"><i data-lucide="eye" class="" aria-hidden="true"></i> View</a></td>
 						</tr>
 					@empty
 						<tr>
 							<td colspan="6" class="report-empty-cell">
 								<div class="report-empty">
-									<i class="bi bi-file-earmark-text" aria-hidden="true"></i>
+									<i data-lucide="file-text" aria-hidden="true"></i>
 									<strong>No reports yet</strong>
 									<p>Public reports submitted by users will appear here.</p>
 									@can('view my reports')
-										<a class="btn btn-primary btn-sm" href="{{ route('reports.create') }}">Create your first report <i class="bi bi-arrow-right ms-1"></i></a>
+										<a class="btn btn-primary btn-sm" href="{{ route('reports.create') }}">Create your first report <i data-lucide="arrow-right" class="ms-1" aria-hidden="true"></i></a>
 									@endcan
 								</div>
 							</td>

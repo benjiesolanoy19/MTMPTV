@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\{AuditLog, User};
+use App\Support\RolePermissionMatrix;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
@@ -16,10 +18,41 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
-        $data = $request->validate(['role' => ['required', Rule::in(['admin', 'staff', 'viewer', 'operator', 'vehicle_owner'])], 'status' => ['required', Rule::in(['active', 'pending', 'suspended', 'deactivated'])]]);
-        if ($user->is(auth()->user()) && ($data['role'] !== 'admin' || $data['status'] !== 'active')) return back()->withErrors(['user' => 'You cannot deactivate or remove your own administrator access.']);
-        $user->update($data);
-        AuditLog::create(['user_id' => auth()->id(), 'action' => 'updated', 'module' => 'User Management', 'record_id' => $user->id, 'description' => "Account {$user->username} updated", 'ip_address' => $request->ip()]);
+        abort_unless($request->user()->isAdmin(), 403);
+        $data = $request->validate([
+            'role' => ['required', Rule::in(array_merge(['admin'], RolePermissionMatrix::roles()))],
+            'status' => ['required', Rule::in(['active', 'pending', 'suspended', 'deactivated'])],
+        ]);
+        if ($user->is($request->user()) && ($data['role'] !== $user->role || $data['status'] !== $user->status)) {
+            return back()->withErrors(['user' => 'You cannot change your own role or account status.']);
+        }
+        DB::transaction(function () use ($user, $data, $request) {
+            $account = User::query()->lockForUpdate()->findOrFail($user->id);
+
+            if ($account->role === 'admin' && $account->status === 'active'
+                && ($data['role'] !== 'admin' || $data['status'] !== 'active')) {
+                $activeAdministrators = User::query()
+                    ->where('role', 'admin')
+                    ->where('status', 'active')
+                    ->lockForUpdate()
+                    ->get();
+
+                if ($activeAdministrators->count() <= 1) {
+                    abort(422, 'The only active administrator account cannot be deactivated or demoted.');
+                }
+            }
+
+            $account->update($data);
+            AuditLog::create([
+                'user_id' => auth()->id(),
+                'action' => 'updated',
+                'module' => 'User Management',
+                'record_id' => $account->id,
+                'description' => "Account {$account->username} updated",
+                'ip_address' => $request->ip(),
+            ]);
+        });
+
         return back()->with('success', 'Account updated.');
     }
 }

@@ -11,35 +11,35 @@
 
 <div class="stat-grid">
     <div class="stat-card">
-        <span class="stat-icon blue"><i class="bi bi-truck"></i></span>
+        <span class="stat-icon blue"><i data-lucide="truck" class="" aria-hidden="true"></i></span>
         <div>
             <small>My vehicles</small>
             <strong>{{ $stats['vehicles'] }}</strong>
         </div>
     </div>
     <div class="stat-card">
-        <span class="stat-icon teal"><i class="bi bi-card-checklist"></i></span>
+        <span class="stat-icon teal"><i data-lucide="clipboard-check" class="" aria-hidden="true"></i></span>
         <div>
             <small>Active permits</small>
             <strong>{{ $stats['active_permits'] }}</strong>
         </div>
     </div>
     <div class="stat-card">
-        <span class="stat-icon amber"><i class="bi bi-hourglass-split"></i></span>
+        <span class="stat-icon amber"><i data-lucide="hourglass" class="" aria-hidden="true"></i></span>
         <div>
             <small>Pending applications</small>
             <strong>{{ $stats['pending_applications'] }}</strong>
         </div>
     </div>
     <div class="stat-card">
-        <span class="stat-icon coral"><i class="bi bi-calendar-event"></i></span>
+        <span class="stat-icon coral"><i data-lucide="calendar-days" class="" aria-hidden="true"></i></span>
         <div>
             <small>Upcoming renewals</small>
             <strong>{{ $stats['upcoming_renewals'] }}</strong>
         </div>
     </div>
     <div class="stat-card">
-        <span class="stat-icon red"><i class="bi bi-exclamation-triangle"></i></span>
+        <span class="stat-icon red"><i data-lucide="triangle-alert" class="" aria-hidden="true"></i></span>
         <div>
             <small>Active violations</small>
             <strong>{{ $stats['active_violations'] }}</strong>
@@ -53,7 +53,7 @@
             <h3>Recent applications</h3>
             <p class="muted">Latest applications linked to your vehicles.</p>
         </div>
-        <a href="{{ route('vehicle-owner.applications.index') }}" class="text-link">View all <i class="bi bi-arrow-up-right"></i></a>
+        <a href="{{ route('vehicle-owner.applications.index') }}" class="text-link">View all <i data-lucide="arrow-up-right" class="" aria-hidden="true"></i></a>
     </div>
     <div class="table-responsive">
         <table class="table align-middle">

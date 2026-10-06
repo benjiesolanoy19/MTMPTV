@@ -3,11 +3,12 @@
 use App\Http\Controllers\Api\ApiController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/login', [ApiController::class, 'login']);
-Route::post('/register', [ApiController::class, 'register']);
+Route::post('/login', [ApiController::class, 'login'])->middleware('throttle:login');
+Route::post('/register', [ApiController::class, 'register'])->middleware('throttle:register');
 
 Route::middleware('auth:web')->group(function () {
     Route::get('/user', function () {
+        abort_unless(auth()->user()->status === 'active', 403);
         return auth()->user()->load('rolePermissions');
     });
     Route::get('/dashboard', [ApiController::class, 'dashboard']);
@@ -35,6 +36,8 @@ Route::middleware('auth:web')->group(function () {
     Route::get('/notifications', [ApiController::class, 'notifications']);
     Route::post('/logout', function () {
         auth()->guard('web')->logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
         return response()->json(['message' => 'Logged out']);
     });
 });

@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\{ApplicationController, AuthController, DashboardController, LiveMapController, NotificationController, OperatorController, OperatorLiveLocationController, OperatorPortalController, PermissionController, ProfileController, PublicTransportController, ReportController, UserController, VehicleController, VehicleOwnerPortalController};
+use App\Http\Controllers\{AdministratorApplicationController, ApplicationController, AuthController, DashboardController, LiveMapController, NotificationController, OperatorController, OperatorLiveLocationController, OperatorPortalController, PermissionController, ProfileController, PublicTransportController, ReportController, SystemActivityController, UserController, VehicleController, VehicleOwnerPortalController};
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -15,6 +15,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('permission:view dashboard');
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/administrator-application', [AdministratorApplicationController::class, 'create'])->name('administrator-application.create');
+    Route::post('/administrator-application', [AdministratorApplicationController::class, 'store'])->middleware('throttle:10,1')->name('administrator-application.store');
 
     Route::prefix('operator')->name('operator.')->middleware('role:operator')->group(function () {
         Route::get('/dashboard', [OperatorPortalController::class, 'dashboard'])->name('dashboard')->middleware('permission:operator portal');
@@ -73,7 +75,9 @@ Route::middleware('auth')->group(function () {
     });
     Route::get('/my-reports', [ReportController::class, 'mine'])->name('reports.mine')->middleware('permission:view my reports');
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index')->middleware('permission:view notifications');
-    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read')->middleware('permission:view notifications');
+    Route::get('/notifications/preview', [NotificationController::class, 'preview'])->name('notifications.preview');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
     Route::get('/franchises', [PublicTransportController::class, 'franchises'])->name('franchises.index')->middleware('permission:view franchises');
     Route::get('/franchises/{franchise}', [PublicTransportController::class, 'franchise'])->name('franchises.show')->middleware('permission:view franchises');
     Route::get('/permits', [PublicTransportController::class, 'permits'])->name('permits.index')->middleware('permission:view permits');
@@ -105,8 +109,15 @@ Route::middleware('auth')->group(function () {
     });
     Route::patch('/applications/{application}/status', [ApplicationController::class, 'updateStatus'])->name('applications.status')->middleware('permission:manage applications');
 
-    Route::get('/users', [UserController::class, 'index'])->name('users.index')->middleware('permission:manage users');
-    Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update')->middleware('permission:manage users');
-    Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index')->middleware('permission:manage users');
-    Route::put('/permissions/{role}', [PermissionController::class, 'update'])->name('permissions.update')->middleware('permission:manage users');
+    Route::middleware(['role:admin', 'permission:manage users'])->group(function () {
+        Route::get('/administrator-applications', [AdministratorApplicationController::class, 'index'])->name('administrator-applications.index');
+        Route::get('/administrator-applications/{administratorApplication}', [AdministratorApplicationController::class, 'show'])->name('administrator-applications.show');
+        Route::post('/administrator-applications/{administratorApplication}/approve', [AdministratorApplicationController::class, 'approve'])->name('administrator-applications.approve');
+        Route::post('/administrator-applications/{administratorApplication}/reject', [AdministratorApplicationController::class, 'reject'])->name('administrator-applications.reject');
+        Route::get('/system-activity', [SystemActivityController::class, 'index'])->name('system-activity.index');
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index');
+        Route::put('/permissions/{role}', [PermissionController::class, 'update'])->name('permissions.update');
+    });
 });

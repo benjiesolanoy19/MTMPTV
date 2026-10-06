@@ -4,7 +4,7 @@
 @include('partials.leaflet')
 <div class="page-head">
     <div>
-        <a href="{{ route('vehicle-owner.vehicles.show', $vehicle) }}" class="text-link"><i class="bi bi-arrow-left"></i> Vehicle details</a>
+        <a href="{{ route('vehicle-owner.vehicles.show', $vehicle) }}" class="text-link"><i data-lucide="arrow-left" class="" aria-hidden="true"></i> Vehicle details</a>
         <h1>{{ $vehicle->plate_number }}</h1>
         <p class="muted">Latest vehicle location and status.</p>
     </div>
@@ -16,8 +16,8 @@
             <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
                 <h3 class="mb-0">Location status</h3>
                 <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-primary" id="ownerMyLocationBtn"><i class="bi bi-crosshair me-1"></i> Enable My Location</button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" id="ownerStopLocationBtn" disabled><i class="bi bi-stop-circle me-1"></i> Stop</button>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="ownerMyLocationBtn"><i data-lucide="crosshair" class="me-1" aria-hidden="true"></i> Enable My Location</button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="ownerStopLocationBtn" disabled><i data-lucide="circle-stop" class="me-1" aria-hidden="true"></i> Stop</button>
                 </div>
             </div>
             <dl class="row small mb-0">

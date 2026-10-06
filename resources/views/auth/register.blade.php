@@ -5,14 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Create account | Transit Desk</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 <link href="{{ asset('css/auth.css') }}" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
 </head>
-<body class="login-page register-screen" style="--school-image: url('{{ asset('images/school-building.jfif') }}')">
+<body class="login-page register-screen auth-signup" style="--school-image: url('{{ asset('images/school-building.jfif') }}')">
+@include('auth.partials.animated-frame')
 <div class="login-art">
 <div class="seal">
-<i class="bi bi-building-fill">
+<i data-lucide="building-2" aria-hidden="true">
 </i>
 </div>
 <div class="eyebrow">MUNICIPAL OPERATIONS</div>
@@ -23,10 +24,7 @@
 </div>
 <div class="login-panel register-panel">
 <div class="register-box">
-<div class="mobile-seal">
-<i class="bi bi-building-fill">
-</i>
-</div>
+<div class="mobile-brand"><span class="mobile-seal"><i data-lucide="signpost-big" aria-hidden="true"></i></span><span><strong>Transit Desk</strong><small>Municipal Operations</small></span></div>
 <div class="eyebrow">ACCOUNT REGISTRATION</div>
 <h2>Create your account.</h2>
 <p class="muted mb-4">Use your details to access the municipal transport portal.</p>@if($errors->any())<div class="alert alert-danger py-2">
@@ -67,7 +65,7 @@
 <div class="input-group">
 <input id="password" name="password" type="password" class="form-control" autocomplete="new-password" required>
 <button type="button" class="btn btn-light border" onclick="togglePassword('password', this)" title="Show password" aria-label="Show password">
-<i class="bi bi-eye">
+<i data-lucide="eye" aria-hidden="true">
 </i>
 </button>
 </div>
@@ -77,7 +75,7 @@
 <div class="input-group">
 <input id="password_confirmation" name="password_confirmation" type="password" class="form-control" autocomplete="new-password" required>
 <button type="button" class="btn btn-light border" onclick="togglePassword('password_confirmation', this)" title="Show password" aria-label="Show password">
-<i class="bi bi-eye">
+<i data-lucide="eye" aria-hidden="true">
 </i>
 </button>
 </div>
@@ -91,7 +89,7 @@
 <input class="form-check-input" type="checkbox" name="privacy" value="1" id="privacy" @checked(old('privacy')) required>
 <label class="form-check-label small" for="privacy">I acknowledge the <a href="#privacy">Privacy Policy</a>.</label>
 </div>
-<button class="btn btn-primary w-100 py-2 mt-4">Create account <i class="bi bi-arrow-right ms-2">
+<button class="btn btn-primary w-100 py-2 mt-4">Create account <i data-lucide="arrow-right" class="ms-2" aria-hidden="true">
 </i>
 </button>
 </form>
@@ -99,6 +97,6 @@
 </p>
 </div>
 </div>
-<script>function togglePassword(id,button){const input=document.getElementById(id);const visible=input.type==='text';input.type=visible?'password':'text';button.querySelector('i').className=visible?'bi bi-eye':'bi bi-eye-slash';button.title=visible?'Show password':'Hide password';button.setAttribute('aria-label',visible?'Show password':'Hide password');}</script>
+<script>document.addEventListener('DOMContentLoaded',()=>window.lucide?.createIcons({attrs:{'stroke-width':1.8}}));function togglePassword(id,button){const input=document.getElementById(id);const visible=input.type==='text';input.type=visible?'password':'text';const icon=document.createElement('i');icon.dataset.lucide=visible?'eye':'eye-off';icon.setAttribute('aria-hidden','true');button.replaceChildren(icon);window.lucide?.createIcons({attrs:{'stroke-width':1.8}});button.title=visible?'Show password':'Hide password';button.setAttribute('aria-label',visible?'Show password':'Hide password');}</script>
 </body>
 </html>

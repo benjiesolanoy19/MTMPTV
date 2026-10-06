@@ -36,6 +36,7 @@ class LiveLocationTest extends TestCase
 
     public function test_operator_can_post_live_location_for_assigned_vehicle(): void
     {
+        RolePermission::create(['role' => 'operator', 'permission' => 'operator portal']);
         [$user, $operator] = $this->makeOperatorUser('gps_driver');
         $vehicle = Vehicle::create([
             'vehicle_code' => 'VH-GPS-1',
@@ -59,6 +60,7 @@ class LiveLocationTest extends TestCase
 
     public function test_vehicle_owner_can_view_only_own_vehicle_location(): void
     {
+        RolePermission::create(['role' => 'vehicle_owner', 'permission' => 'vehicle owner vehicles']);
         $ownerUser = User::factory()->create(['role' => 'vehicle_owner']);
         $ownerOperator = Operator::create([
             'user_id' => $ownerUser->id,

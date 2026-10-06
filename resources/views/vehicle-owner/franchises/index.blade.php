@@ -32,7 +32,7 @@
                         <td>{{ $franchise->issue_date->format('d M Y') }}</td>
                         <td>{{ $franchise->expiry_date->format('d M Y') }}</td>
                         <td>{{ $franchise->status }}</td>
-                        <td><a href="{{ route('vehicle-owner.franchises.show', $franchise) }}" class="btn btn-sm btn-light border"><i class="bi bi-eye"></i> View</a></td>
+                        <td><a href="{{ route('vehicle-owner.franchises.show', $franchise) }}" class="btn btn-sm btn-light border"><i data-lucide="eye" class="" aria-hidden="true"></i> View</a></td>
                     </tr>
                 @empty
                     <tr><td colspan="7" class="text-center py-5 text-muted">No franchise records found.</td></tr>

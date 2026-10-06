@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
 @include('partials.leaflet')
-<div class="page-head"><div><a href="{{ url()->previous() }}" class="text-link"><i class="bi bi-arrow-left"></i> Reports</a><h1>{{ $report->report_number }}</h1><p class="muted">{{ $report->report_type }} · Submitted {{ $report->date_submitted->format('d M Y') }}</p></div><span class="badge bg-light text-dark fs-6">{{ $report->status }}</span></div>
+<div class="page-head"><div><a href="{{ url()->previous() }}" class="text-link"><i data-lucide="arrow-left" class="" aria-hidden="true"></i> Reports</a><h1>{{ $report->report_number }}</h1><p class="muted">{{ $report->report_type }} · Submitted {{ $report->date_submitted->format('d M Y') }}</p></div><span class="badge bg-light text-dark fs-6">{{ $report->status }}</span></div>
 <div class="row g-4">
     <div class="col-lg-8">
         <div class="panel">
