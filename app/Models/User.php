@@ -60,14 +60,38 @@ class User extends Authenticatable
     public function reports() { return $this->hasMany(Report::class, 'submitted_by'); }
     public function notifications() { return $this->hasMany(Notification::class); }
     public function administratorApplications() { return $this->hasMany(AdministratorApplication::class); }
+    public function staffApplications() { return $this->hasMany(StaffApplication::class); }
+    public function staffProfile() { return $this->hasOne(StaffProfile::class); }
     public function operatorProfile() { return $this->hasOne(Operator::class); }
     public function isAdmin(): bool { return $this->role === 'admin'; }
     public function canManage(string $permission): bool { return $this->hasPermission($permission); }
+    public function canAccessStaff(): bool
+    {
+        if ($this->role !== 'staff' || $this->status !== 'active') {
+            return false;
+        }
+
+        $application = $this->staffApplications()->where('status', 'approved')->latest('reviewed_at')->first();
+        if (! $application) {
+            return false;
+        }
+
+        $profile = $this->staffProfile()->where('profile_completed', true)->first();
+
+        return (bool) $profile;
+    }
+
+    public function staffApplicationIsApproved(): bool
+    {
+        return $this->staffApplications()->where('status', 'approved')->exists();
+    }
+
     public function roleLabel(): string
     {
         return match ($this->role) {
             'admin' => 'Administrator',
             'viewer' => 'Report User',
+            'staff' => 'Staff',
             default => ucwords(str_replace('_', ' ', $this->role)),
         };
     }

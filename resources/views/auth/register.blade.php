@@ -46,6 +46,7 @@
 <option value="viewer" @selected(old('role')==='viewer')>Report user</option>
 <option value="operator" @selected(old('role')==='operator')>Operator / Driver</option>
 <option value="vehicle_owner" @selected(old('role')==='vehicle_owner')>Vehicle owner</option>
+<option value="staff" @selected(old('role')==='staff')>Staff</option>
 </select>
 </div>
 <div class="col-md-6">
@@ -59,6 +60,39 @@
 <div class="col-12">
 <label class="form-label" for="address">Address</label>
 <textarea id="address" name="address" class="form-control" rows="2" required>{{ old('address') }}</textarea>
+</div>
+<div id="staffFields" class="col-12 mt-2" style="display:none;">
+<div class="card border-0 shadow-sm" style="background: rgba(255,255,255,0.05);">
+<div class="card-body p-3">
+<div class="eyebrow mb-2" style="letter-spacing:0.12em; font-size:0.68rem;">STAFF APPLICATION</div>
+<div class="row g-3">
+<div class="col-md-6">
+<label class="form-label" for="staff_position">Position / desired role</label>
+<input id="staff_position" name="staff_position" class="form-control" value="{{ old('staff_position') }}" maxlength="255">
+</div>
+<div class="col-md-6">
+<label class="form-label" for="staff_department">Department / assignment</label>
+<input id="staff_department" name="staff_department" class="form-control" value="{{ old('staff_department') }}" maxlength="255">
+</div>
+<div class="col-12">
+<label class="form-label" for="staff_skills">Skills</label>
+<textarea id="staff_skills" name="staff_skills" class="form-control" rows="2">{{ old('staff_skills') }}</textarea>
+</div>
+<div class="col-12">
+<label class="form-label" for="staff_experience">Previous experience</label>
+<textarea id="staff_experience" name="staff_experience" class="form-control" rows="2">{{ old('staff_experience') }}</textarea>
+</div>
+<div class="col-12">
+<label class="form-label" for="staff_reason">Reason for applying as staff</label>
+<textarea id="staff_reason" name="staff_reason" class="form-control" rows="2">{{ old('staff_reason') }}</textarea>
+</div>
+<div class="col-12">
+<label class="form-label" for="staff_additional_information">Additional information</label>
+<textarea id="staff_additional_information" name="staff_additional_information" class="form-control" rows="2">{{ old('staff_additional_information') }}</textarea>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="col-md-6">
 <label class="form-label" for="password">Password</label>
@@ -97,6 +131,26 @@
 </p>
 </div>
 </div>
-<script>document.addEventListener('DOMContentLoaded',()=>window.lucide?.createIcons({attrs:{'stroke-width':1.8}}));function togglePassword(id,button){const input=document.getElementById(id);const visible=input.type==='text';input.type=visible?'password':'text';const icon=document.createElement('i');icon.dataset.lucide=visible?'eye':'eye-off';icon.setAttribute('aria-hidden','true');button.replaceChildren(icon);window.lucide?.createIcons({attrs:{'stroke-width':1.8}});button.title=visible?'Show password':'Hide password';button.setAttribute('aria-label',visible?'Show password':'Hide password');}</script>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+window.lucide?.createIcons({attrs:{'stroke-width':1.8}});
+const roleSelect=document.getElementById('role');
+const staffFields=document.getElementById('staffFields');
+const toggleStaffFields=()=>{
+const show=roleSelect.value==='staff';
+staffFields.style.display=show ? 'block' : 'none';
+staffFields.querySelectorAll('input, textarea').forEach(field => {
+if (!show) {
+field.disabled = true;
+} else {
+field.disabled = false;
+}
+});
+};
+roleSelect.addEventListener('change', toggleStaffFields);
+toggleStaffFields();
+});
+function togglePassword(id,button){const input=document.getElementById(id);const visible=input.type==='text';input.type=visible?'password':'text';const icon=document.createElement('i');icon.dataset.lucide=visible?'eye':'eye-off';icon.setAttribute('aria-hidden','true');button.replaceChildren(icon);window.lucide?.createIcons({attrs:{'stroke-width':1.8}});button.title=visible?'Show password':'Hide password';button.setAttribute('aria-label',visible?'Show password':'Hide password');}
+</script>
 </body>
 </html>

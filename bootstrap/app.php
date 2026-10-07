@@ -16,7 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->alias(['role' => RoleMiddleware::class, 'permission' => PermissionMiddleware::class]);
+        $middleware->alias([
+            'role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
+            'staff-access' => \App\Http\Middleware\StaffAccessMiddleware::class,
+            'staff-onboarding' => \App\Http\Middleware\StaffOnboardingMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Render a readable page (with the real retry delay) instead of the

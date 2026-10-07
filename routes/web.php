@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\{AdministratorApplicationController, ApplicationController, AuthController, DashboardController, LiveMapController, NotificationController, OperatorController, OperatorLiveLocationController, OperatorPortalController, PermissionController, ProfileController, PublicTransportController, ReportController, SystemActivityController, UserController, VehicleController, VehicleOwnerPortalController};
+use App\Http\Controllers\{AdministratorApplicationController, ApplicationController, AuthController, DashboardController, LiveMapController, NotificationController, OperatorController, OperatorLiveLocationController, OperatorPortalController, PermissionController, ProfileController, PublicTransportController, ReportController, StaffApplicationController, StaffDashboardController, StaffOnboardingController, SystemActivityController, UserController, VehicleController, VehicleOwnerPortalController};
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -17,6 +17,26 @@ Route::middleware('auth')->group(function () {
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/administrator-application', [AdministratorApplicationController::class, 'create'])->name('administrator-application.create');
     Route::post('/administrator-application', [AdministratorApplicationController::class, 'store'])->middleware('throttle:10,1')->name('administrator-application.store');
+
+    Route::prefix('staff-application')->name('staff-application.')->group(function () {
+        Route::get('/create', [StaffApplicationController::class, 'create'])->name('create');
+        Route::post('/', [StaffApplicationController::class, 'store'])->middleware('throttle:10,1')->name('store');
+        Route::get('/status', [StaffApplicationController::class, 'status'])->name('status');
+    });
+
+    Route::prefix('staff-applications')->name('staff-applications.')->middleware('role:admin')->group(function () {
+        Route::get('/', [StaffApplicationController::class, 'index'])->name('index');
+        Route::get('/{staffApplication}', [StaffApplicationController::class, 'show'])->name('show');
+        Route::post('/{staffApplication}/approve', [StaffApplicationController::class, 'approve'])->name('approve');
+        Route::post('/{staffApplication}/reject', [StaffApplicationController::class, 'reject'])->name('reject');
+    });
+
+    Route::prefix('staff')->name('staff.')->middleware('staff-access')->group(function () {
+        Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/profile', [StaffDashboardController::class, 'profile'])->name('profile');
+        Route::get('/onboarding', [StaffOnboardingController::class, 'show'])->name('onboarding')->middleware('staff-onboarding');
+        Route::post('/onboarding', [StaffOnboardingController::class, 'store'])->name('onboarding.store')->middleware('staff-onboarding');
+    });
 
     Route::prefix('operator')->name('operator.')->middleware('role:operator')->group(function () {
         Route::get('/dashboard', [OperatorPortalController::class, 'dashboard'])->name('dashboard')->middleware('permission:operator portal');

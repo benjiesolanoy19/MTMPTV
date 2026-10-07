@@ -12,7 +12,16 @@ class RegisterUserRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $staffRules = $this->input('role') === 'staff' ? [
+            'staff_position' => ['required', 'string', 'max:255'],
+            'staff_department' => ['required', 'string', 'max:255'],
+            'staff_skills' => ['required', 'string', 'max:5000'],
+            'staff_experience' => ['required', 'string', 'max:5000'],
+            'staff_reason' => ['required', 'string', 'max:5000'],
+            'staff_additional_information' => ['nullable', 'string', 'max:5000'],
+        ] : [];
+
+        return array_merge([
             'name' => ['required', 'string', 'max:120'],
             'username' => ['required', 'string', 'min:3', 'max:30', 'regex:/^[A-Za-z][A-Za-z0-9._-]*$/', 'unique:users,username'],
             'email' => ['required', 'email:rfc', 'max:255', 'unique:users,email'],
@@ -22,7 +31,7 @@ class RegisterUserRequest extends FormRequest
             'role' => ['required', 'in:'.implode(',', RolePermissionMatrix::PUBLIC_REGISTRATION_ROLES)],
             'terms' => ['accepted'],
             'privacy' => ['accepted'],
-        ];
+        ], $staffRules);
     }
 
     public function attributes(): array

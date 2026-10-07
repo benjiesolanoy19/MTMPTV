@@ -34,6 +34,39 @@ class RegistrationTest extends TestCase
         ]);
     }
 
+    public function test_staff_registration_creates_pending_application_without_granting_staff_access(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->post(route('register.store'), $this->registrationData([
+            'role' => 'staff',
+            'username' => 'staff.user',
+            'email' => 'staff@example.test',
+            'staff_position' => 'Operations Assistant',
+            'staff_department' => 'Operations',
+            'staff_skills' => 'Scheduling and customer service',
+            'staff_experience' => '2 years of public service support',
+            'staff_reason' => 'I want to support municipal operations.',
+        ]));
+
+        $response->assertRedirect(route('staff-application.status'));
+        $this->assertAuthenticated();
+
+        $user = User::where('email', 'staff@example.test')->firstOrFail();
+        $this->assertSame('viewer', $user->role);
+        $this->assertDatabaseHas('staff_applications', [
+            'user_id' => $user->id,
+            'preferred_position' => 'Operations Assistant',
+            'status' => 'pending',
+        ]);
+        $this->assertDatabaseHas('notifications', [
+            'user_id' => $admin->id,
+            'title' => 'New Staff application requires review.',
+        ]);
+
+        $this->actingAs($user)->get(route('staff.dashboard'))->assertForbidden();
+    }
+
     public function test_registration_rejects_admin_role_and_missing_terms(): void
     {
         $response = $this->from(route('register'))->post(route('register.store'), $this->registrationData(['role' => 'admin', 'terms' => null]));

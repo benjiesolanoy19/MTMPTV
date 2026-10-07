@@ -7,24 +7,14 @@ final class RolePermissionMatrix
     public const PERMISSIONS = [
         'staff' => [
             'view dashboard',
-            'view operators',
-            'manage operators',
-            'view vehicles',
-            'manage vehicles',
-            'view applications',
-            'create applications',
-            'manage applications',
-            'view franchises',
-            'manage franchises',
-            'view permits',
-            'manage permits',
-            'view renewals',
-            'manage renewals',
-            'view violations',
-            'manage violations',
+            'view notifications',
             'view reports',
             'view my reports',
-            'view notifications',
+            'staff portal',
+            'staff profile',
+            'staff onboarding',
+            'view vehicles',
+            'view operators',
         ],
         'viewer' => [
             'view dashboard',
@@ -61,7 +51,7 @@ final class RolePermissionMatrix
         ],
     ];
 
-    public const PUBLIC_REGISTRATION_ROLES = ['viewer', 'operator', 'vehicle_owner'];
+    public const PUBLIC_REGISTRATION_ROLES = ['viewer', 'operator', 'vehicle_owner', 'staff'];
 
     public static function roles(): array
     {
